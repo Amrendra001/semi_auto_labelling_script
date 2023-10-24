@@ -1,0 +1,29 @@
+# TO build a docker image from a docker file
+docker build -t [TAG NAME] -f [DOCKER FILE PATH] [CONTEXT DIRECTORY PATH]
+docker build -t ai_table_parser -f dockerize/dockerfile .
+
+# Run the image at endpoint localhost:9000/2015-03-31/functions/function/invocations
+docker run -p 9000:8080 <env variables> [TAG NAME]:latest
+docker run -p 9000:8080  table_parsing_api_l2:latest
+# check keys.docker_run_with_keys.sh to run docker with keys as env variables
+
+
+# Test the image
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+
+## Deploy docker image to AWS ECR
+
+# Create a Repo on ECR
+aws ecr create-repository --repository-name ai-table-parser
+
+# Tag your image to match your repository name
+# The format for this is {AccountID}.dkr.ecr.{region}.amazonaws.com/{repository-name}
+docker tag [IMAGE TAG] {AccountID}.dkr.ecr.{region}.amazonaws.com/{repository-name}
+docker tag ai_table_parser 144366017634.dkr.ecr.ap-south-1.amazonaws.com/ai-table-parser:dev
+
+# Authenticate the Docker CLI to your Amazon ECR registry
+bash dockerize/docker_login.sh
+
+# push the image to ECR Registry
+docker push 144366017634.dkr.ecr.ap-south-1.amazonaws.com/ai-table-parser:dev
+
