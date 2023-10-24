@@ -28,8 +28,8 @@ def lambda_handler(event, context):
 
     sync_label_s3_folder(LABELLED_FILES_S3_PATH,REF_FOLDER)
 
-    ref_assembly_csv = pd.read_csv('app/ref_assembly_with_variations_new.csv')
-    variation_csv = pd.read_csv('app/key_acc_variations.csv')
+    ref_assembly_csv = pd.read_csv('ref_assembly_with_variations_new.csv')
+    variation_csv = pd.read_csv('key_acc_variations.csv')
 
     s3_client = boto3.client('s3')
     pred_ocr = download_vision_response(pred_doc_id_without_ext, s3_client)
