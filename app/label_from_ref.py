@@ -222,7 +222,7 @@ def get_page_labels(pred_doc_id, ocr_data_pred_allpage, s3_client = None, ref_js
                 final_results = change_table_labels(old_labels, header_page)
                 pagewise_final_results[pred_page_idx] = final_results
         else:
-            final_results = change_table_labels(final_results)
+            final_results = change_table_labels(final_results, header_page)
             pagewise_final_results[pred_page_idx] = final_results
 
 
