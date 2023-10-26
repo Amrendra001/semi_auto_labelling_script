@@ -59,10 +59,11 @@ def download_from_s3(document_path, filename, attachment_bucket, s3_client=None)
 def download_vision_response(doc_id_without_extension, s3_client, ref=False):
     ocr_output_filename = f'/tmp/{doc_id_without_extension}.parquet'
     ocr_bucket = os.environ['DATA_BUCKET']
-    if ref:
-        ocr_output_filename_s3 = f'ocr_output_excel/{doc_id_without_extension}.parquet'
-    else:
-        ocr_output_filename_s3 = f'ocr_output/{doc_id_without_extension}.parquet'
+    # if ref:
+    #     ocr_output_filename_s3 = f'ocr_output_excel/{doc_id_without_extension}.parquet'
+    # else:
+    #     ocr_output_filename_s3 = f'ocr_output/{doc_id_without_extension}.parquet'
+    ocr_output_filename_s3 = f'ocr_output/{doc_id_without_extension}.parquet'
     download_from_s3(ocr_output_filename_s3, ocr_output_filename, ocr_bucket, s3_client)
     word_df = pd.read_parquet(ocr_output_filename)
     return word_df
@@ -283,7 +284,7 @@ def clean_item(item):
     return ''.join(output)
 
 
-def is_fuzzy_match(data_1, data_2, text_same_threshold = 70):
+def is_fuzzy_match(data_1, data_2, text_same_threshold = 90):
     is_match = fuzz.ratio(clean_item(str(data_1).strip().lower()), clean_item(str(data_2).strip().lower())) >= text_same_threshold
     return is_match
 
@@ -624,10 +625,12 @@ def get_col_iou(header_label,cell_label):
     return iou
     
 
-def change_table_labels(page_labels):
+def change_table_labels(page_labels, header_page = []):
+    if not header_page:
+        header_page = page_labels
     final_labels = []
     header_labels = {}
-    for label in page_labels:
+    for label in header_page:
         if 'value' in label.keys():
             if 'rectanglelabels' in label['value']:
                 label_name = label['value']['rectanglelabels'][0]

@@ -21,6 +21,14 @@ os.makedirs(FINAL_LABEL_FOLDER,exist_ok=True)
 PRED_DOC_S3_PATH = os.environ['PRED_DOC_S3_PATH']
 
 
+def check_header_label(page_ls):
+    for label_dict in page_ls:
+        label = label_dict['value']['rectanglelabels'][0]
+        if '_header' in label:
+            return True
+    return False
+
+
 def get_page_labels(pred_doc_id, ocr_data_pred_allpage, s3_client = None, ref_json = []):
     # s3_cp_cmd_ref = f'aws s3 cp {REF_DOC_S3_PATH} {REF_FOLDER}/21418.json'
     # os.system(s3_cp_cmd_ref)
@@ -160,8 +168,8 @@ def get_page_labels(pred_doc_id, ocr_data_pred_allpage, s3_client = None, ref_js
     
             if len(list(page_matched_headers))==1:
                 final_results = remove_headers(final_results)
-            elif len(list(page_matched_headers))>1 and is_headers_span_large(final_results):
-                final_results = remove_headers(final_results)
+            # elif len(list(page_matched_headers))>1 and is_headers_span_large(final_results):
+            #     final_results = remove_headers(final_results)
             
             pagewise_final_results[pred_page_idx] = final_results
         
@@ -200,10 +208,18 @@ def get_page_labels(pred_doc_id, ocr_data_pred_allpage, s3_client = None, ref_js
             else:
                 final_results.append(label)
 
+        if sum([check_header_label(page_ls) for i, page_ls in pagewise_final_results.items()]) == 1:
+            header_page = [page_ls for i, page_ls in pagewise_final_results.items() if check_header_label(page_ls)][0]
+            print('Headers only on one page')
+        else:
+            header_page = []
+            print('Headers on Multi-page')
+
+
         if pred_page_idx in pagewise_final_results.keys():
                 old_labels = pagewise_final_results[pred_page_idx]
                 old_labels.extend(final_results)
-                final_results = change_table_labels(old_labels)
+                final_results = change_table_labels(old_labels, header_page)
                 pagewise_final_results[pred_page_idx] = final_results
         else:
             final_results = change_table_labels(final_results)
