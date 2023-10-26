@@ -228,6 +228,14 @@ def get_page_labels(pred_doc_id, ocr_data_pred_allpage, s3_client = None, ref_js
 
 
         task_json = create_task_per_image(pred_page_json['data']['image'])
+        task_json["page_number"] = pred_page_json['page_number']
+        task_json["pages_in_doc"] = pred_page_json['pages_in_doc']
+        task_json["label_state"] = pred_page_json['label_state']
+        task_json["legacy_parsing"] = pred_page_json['legacy_parsing']
+        task_json["doc_id"] = pred_page_json['doc_id']
+        task_json["row_separators"] = pred_page_json['doc_id']
+        task_json["column_separators"] = pred_page_json['doc_id']
+        task_json["ocr_data_s3_uri"] = pred_page_json['ocr_data_s3_uri']
         task_json['predictions'][0]['result'] = pagewise_final_results[pred_page_idx]
 
         json_name = get_file_name_from_path(pred_page_json['data']['image'])+'.json'
